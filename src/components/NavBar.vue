@@ -3,39 +3,94 @@
     <a class="logo">
       <img src="@/assets/images/logo.svg" alt="Disney+" />
     </a>
-    <div class="navMenu">
-      <a href="/home">
-        <img src="@/assets/images/home-icon.svg" alt="HOME" />
-        <span>HOME</span>
-      </a>
-      <a>
-        <img src="@/assets/images/search-icon.svg" alt="SEARCH" />
-        <span>SEARCH</span>
-      </a>
-      <a>
-        <img src="@/assets/images/watchlist-icon.svg" alt="WATCHLIST" />
-        <span>WATCHLIST</span>
-      </a>
-      <a>
-        <img src="@/assets/images/original-icon.svg" alt="ORIGINALS" />
-        <span>ORIGINALS</span>
-      </a>
-      <a>
-        <img src="@/assets/images/movie-icon.svg" alt="MOVIES" />
-        <span>MOVIES</span>
-      </a>
-      <a>
-        <img src="@/assets/images/series-icon.svg" alt="SERIES" />
-        <span>SERIES</span>
-      </a>
-    </div>
-    <a href="/login" class="login">login</a>
+    <a v-if="!user.user.name" @click="signIn" class="login">login</a>
+    <template v-else>
+      <div class="navMenu">
+        <a href="/home">
+          <img src="@/assets/images/home-icon.svg" alt="HOME" />
+          <span>HOME</span>
+        </a>
+        <a>
+          <img src="@/assets/images/search-icon.svg" alt="SEARCH" />
+          <span>SEARCH</span>
+        </a>
+        <a>
+          <img src="@/assets/images/watchlist-icon.svg" alt="WATCHLIST" />
+          <span>WATCHLIST</span>
+        </a>
+        <a>
+          <img src="@/assets/images/original-icon.svg" alt="ORIGINALS" />
+          <span>ORIGINALS</span>
+        </a>
+        <a>
+          <img src="@/assets/images/movie-icon.svg" alt="MOVIES" />
+          <span>MOVIES</span>
+        </a>
+        <a>
+          <img src="@/assets/images/series-icon.svg" alt="SERIES" />
+          <span>SERIES</span>
+        </a>
+      </div>
+      <div class="signOut">
+        <img :src="user.photo" :alt="user.name" class="userImg" />
+        <div class="dropDown">
+          <span @click="signOut">Sign Out</span>
+        </div>
+      </div>
+    </template>
   </nav>
 </template>
 
 <script>
+import {
+  signInWithGooglePopup,
+  onAuthStateChangedListener,
+  signOutUser,
+} from '@/utils/firebase.utils';
+import { useUserStore } from '@/stores/user';
+
 export default {
   name: 'NavBar',
+  data() {
+    return {
+      store: useUserStore(),
+      unsubscribeAuth: null,
+    };
+  },
+  computed: {
+    user() {
+      return this.store.user;
+    },
+  },
+  created() {
+    this.unsubscribeAuth = onAuthStateChangedListener((user) => {
+      if (user) {
+        const { email, displayName, photoURL } = user;
+        this.setUser(email, displayName, photoURL);
+        this.$router.push('/home');
+      }
+    });
+  },
+  beforeUnmount() {
+    if (this.unsubscribeAuth) {
+      this.unsubscribeAuth();
+    }
+  },
+  methods: {
+    async signIn() {
+      const user = await signInWithGooglePopup();
+      const { displayName, email, photoURL } = user;
+      this.setUser(displayName, email, photoURL);
+    },
+    async signOut() {
+      await signOutUser();
+      this.store.setSignOutState();
+      this.$router.push('/');
+    },
+    setUser(name, email, photo) {
+      this.store.setUserLoginDetails(name, email, photo);
+    },
+  },
 };
 </script>
 
@@ -81,7 +136,6 @@ export default {
   margin-left: 25px;
 
   a {
-    cursor: pointer;
     display: flex;
     align-items: center;
     padding: 0 12px;
@@ -148,5 +202,47 @@ export default {
     color: #000;
     border-color: transparent;
   }
+}
+
+.userImg {
+  height: 100%;
+}
+
+.signOut {
+  position: relative;
+  height: 48px;
+  width: 48px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+
+  .userImg {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+  }
+
+  &:hover {
+    .dropDown {
+      opacity: 1;
+      transition-duration: 1s;
+    }
+  }
+}
+
+.dropDown {
+  position: absolute;
+  top: 48px;
+  right: 0px;
+  background: rgb(19, 19, 19);
+  border: 1px solid rgba(151, 151, 151, 0.34);
+  border-radius: 4px;
+  box-shadow: rgb(0 0 0 / 50%) 0px 0px 18px 0px;
+  padding: 10px;
+  font-size: 14px;
+  letter-spacing: 3px;
+  width: 100px;
+  opacity: 0;
 }
 </style>

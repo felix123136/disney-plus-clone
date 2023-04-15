@@ -9,6 +9,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@splidejs/vue-splide": "^0.6.12",
+    "firebase": "^9.19.1",
     "pinia": "^2.0.32",
     "sass": "^1.62.0",
     "vue": "^3.2.47",
