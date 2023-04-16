@@ -13,6 +13,8 @@ import {
   collection,
   query,
   getDocs,
+  getDoc,
+  doc,
 } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
@@ -104,3 +106,20 @@ export const fetchMovies = async () => {
     trending,
   };
 };
+
+export async function fetchMovieById(movieId) {
+  try {
+    const docRef = doc(db, 'movie', movieId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log('Document data:', docSnap.data());
+      return docSnap.data();
+    } else {
+      console.log('No such document!');
+      return null;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}

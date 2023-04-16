@@ -3,8 +3,8 @@
     <h4>{{ title }}</h4>
     <div class="content">
       <div v-for="movie in movies" :key="movie.id" class="wrap">
-        <RouterLink :to="`/movies/${movie.id}`">
-          <img :src="movie.cardImg" alt="" />
+        <RouterLink :to="`/detail/${movie.id}`">
+          <img :src="movie.cardImg" :alt="movie.title" />
         </RouterLink>
       </div>
     </div>
