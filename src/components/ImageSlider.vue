@@ -51,11 +51,10 @@ export default {
         pagination: true,
         pauseOnHover: true,
         padding: {
-          left: '3.5vw',
-          right: '3.5vw',
+          left: '4vw',
+          right: '4vw',
         },
         classes: {
-          root: 'splide carousel',
           // Add classes for arrows.
           arrows: 'splide__arrows',
           arrow: 'splide__arrow arrow',
@@ -102,26 +101,30 @@ export default {
 </style>
 
 <style lang="scss">
-.carousel {
+.splide {
   margin-top: 20px;
+  width: 100vw;
+  margin-left: calc(-3.5vw - 15px);
+
+  &:hover .arrow {
+    opacity: 1;
+    transition: opacity 0.2s ease 0s;
+  }
 }
 
 .arrow {
   opacity: 0;
-  /* height: 100%; */
-  /* width: 5vw; */
+  /* height: 100%;
+  width: 5vw; */
   z-index: 1;
-
-  &:hover {
-    opacity: 1;
-    transition: opacity 0.2s ease 0s;
-  }
 }
 
 .page {
   height: 10px;
   width: 10px;
   margin: 0 12px;
+  position: relative;
+  top: 30px;
 }
 
 .page.is-active {

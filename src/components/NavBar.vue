@@ -1,8 +1,8 @@
 <template>
   <nav class="nav">
-    <a class="logo">
+    <RouterLink to="/home" class="logo">
       <img src="@/assets/images/logo.svg" alt="Disney+" />
-    </a>
+    </RouterLink>
     <a v-if="!user.user.name" @click="signIn" class="login">login</a>
     <template v-else>
       <div class="navMenu">
@@ -48,9 +48,11 @@ import {
   signOutUser,
 } from '@/utils/firebase.utils';
 import { useUserStore } from '@/stores/user';
+import { RouterLink } from 'vue-router';
 
 export default {
   name: 'NavBar',
+  components: { RouterLink },
   data() {
     return {
       store: useUserStore(),
