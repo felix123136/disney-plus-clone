@@ -2,10 +2,19 @@
   <main class="container">
     <ImageSlider />
     <ViewersSection />
-    <MoviesSection title="Recommended for You" :movies="recommended" />
-    <MoviesSection title="New to Disney+" :movies="newDisney" />
-    <MoviesSection title="Originals" :movies="originals" />
-    <MoviesSection title="Trending" :movies="trending" />
+    <p v-if="isLoading">Loading...</p>
+    <template v-else>
+      <MoviesSection
+        title="Recommended for You"
+        :movies="movieStore.movie.recommended"
+      />
+      <MoviesSection
+        title="New to Disney+"
+        :movies="movieStore.movie.newDisney"
+      />
+      <MoviesSection title="Originals" :movies="movieStore.movie.originals" />
+      <MoviesSection title="Trending" :movies="movieStore.movie.trending" />
+    </template>
   </main>
 </template>
 
@@ -15,6 +24,7 @@ import ViewersSection from '../components/ViewersSection.vue';
 import { fetchMovies } from '../utils/firebase.utils';
 import { useMovieStore } from '../stores/movie';
 import MoviesSection from '../components/MoviesSection.vue';
+import { mapStores } from 'pinia';
 
 export default {
   name: 'HomeView',
@@ -23,30 +33,18 @@ export default {
     ViewersSection,
     MoviesSection,
   },
-  computed: {
-    recommended() {
-      return this.store.movie.recommended;
-    },
-    newDisney() {
-      return this.store.movie.newDisney;
-    },
-    originals() {
-      return this.store.movie.originals;
-    },
-    trending() {
-      return this.store.movie.trending;
-    },
-  },
   data() {
     return {
-      store: useMovieStore(),
+      isLoading: true,
     };
+  },
+  computed: {
+    ...mapStores(useMovieStore),
   },
   async created() {
     const movies = await fetchMovies();
-
-    this.store.setMovies(movies);
-    console.log(movies);
+    this.isLoading = false;
+    this.movieStore.setMovies(movies);
   },
 };
 </script>

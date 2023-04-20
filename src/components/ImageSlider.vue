@@ -119,6 +119,12 @@ export default {
   z-index: 1;
 }
 
+.splide__arrows {
+  display: flex;
+  justify-content: center;
+  margin-left: 10px;
+}
+
 .page {
   height: 10px;
   width: 10px;

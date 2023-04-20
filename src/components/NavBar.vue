@@ -3,7 +3,7 @@
     <RouterLink to="/home" class="logo">
       <img src="@/assets/images/logo.svg" alt="Disney+" />
     </RouterLink>
-    <a v-if="!user.user.name" @click="signIn" class="login">login</a>
+    <a v-if="!userStore.user.name" @click="signIn" class="login">login</a>
     <template v-else>
       <div class="navMenu">
         <a href="/home">
@@ -32,7 +32,11 @@
         </a>
       </div>
       <div class="signOut">
-        <img :src="user.photo" :alt="user.name" class="userImg" />
+        <img
+          :src="userStore.user.photo"
+          :alt="userStore.user.name"
+          class="userImg"
+        />
         <div class="dropDown">
           <span @click="signOut">Sign Out</span>
         </div>
@@ -47,6 +51,7 @@ import {
   onAuthStateChangedListener,
   signOutUser,
 } from '@/utils/firebase.utils';
+import { mapStores } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import { RouterLink } from 'vue-router';
 
@@ -55,20 +60,17 @@ export default {
   components: { RouterLink },
   data() {
     return {
-      store: useUserStore(),
       unsubscribeAuth: null,
     };
   },
   computed: {
-    user() {
-      return this.store.user;
-    },
+    ...mapStores(useUserStore),
   },
   created() {
     this.unsubscribeAuth = onAuthStateChangedListener((user) => {
       if (user) {
         const { email, displayName, photoURL } = user;
-        this.setUser(email, displayName, photoURL);
+        this.userStore.setUserLoginDetails(displayName, email, photoURL);
         this.$router.push('/home');
       }
     });
@@ -82,15 +84,12 @@ export default {
     async signIn() {
       const user = await signInWithGooglePopup();
       const { displayName, email, photoURL } = user;
-      this.setUser(displayName, email, photoURL);
+      this.userStore.setUser(displayName, email, photoURL);
     },
     async signOut() {
       await signOutUser();
-      this.store.setSignOutState();
+      this.userStore.setSignOutState();
       this.$router.push('/');
-    },
-    setUser(name, email, photo) {
-      this.store.setUserLoginDetails(name, email, photo);
     },
   },
 };
